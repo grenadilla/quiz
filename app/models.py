@@ -168,6 +168,40 @@ class Tossup(db.Model): # pylint: disable=too-few-public-methods
     subcategory = db.relationship('Subcategory')
     tournament = db.relationship('Tournament')
 
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "text": {
+                "raw": self.text,
+                "formatted": self.formatted_text,
+            },
+            "answer": {
+                "raw": self.answer,
+                "formatted": self.formatted_answer,
+            },
+            "category": {
+                "id": self.category_id,
+                "name": self.category.name,
+            },
+            "subcategory": {
+                "id": self.subcategory_id,
+                "name": self.subcategory.name,
+            },
+            "meta": {
+                "tournament": {
+                    "id": self.tournament_id,
+                    "name": self.tournament.name,
+                    "round": self.round,
+                    "number": self.number,
+                },
+                "quinterest_id": self.quinterest_id,
+                "created_at": self.created_at.isoformat(),
+                "updated_at": self.updated_at.isoformat(),
+                "errors_count": self.errors_count,
+                "wikipedia_url": self.wikipedia_url,
+            },
+        }
 
 class BonusPart(db.Model): # pylint: disable=too-few-public-methods
     __tablename__ = 'bonus_parts'

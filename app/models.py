@@ -121,6 +121,42 @@ class Subcategory(db.Model): # pylint: disable=too-few-public-methods
 
     category = db.relationship('Category')
 
+class BonusPart(db.Model): # pylint: disable=too-few-public-methods
+    __tablename__ = 'bonus_parts'
+
+    id = db.Column(db.Integer, primary_key=True,
+                   server_default=text("nextval('bonus_parts_id_seq'::regclass)"))
+    bonus_id = db.Column(db.ForeignKey('bonuses.id'), index=True)
+    text = db.Column(db.Text, index=True)
+    answer = db.Column(db.Text, index=True)
+    formatted_text = db.Column(db.Text)
+    formatted_answer = db.Column(db.Text)
+    created_at = db.Column(DateTime, nullable=False)
+    updated_at = db.Column(DateTime, nullable=False)
+    number = db.Column(db.Integer, nullable=False)
+    wikipedia_url = db.Column(db.Text)
+
+    bonus = db.relationship('Bonus')
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "bonus_id": self.bonus_id,
+            "text": {
+                "raw": self.text,
+                "formatted": self.formatted_text
+            },
+            "answer": {
+                "raw": self.answer,
+                "formatted": self.formatted_answer,
+            },
+            "meta": {
+                "created_at": self.created_at.isoformat(),
+                "updated_at": self.updated_at.isoformat(),
+                "wikipedia_url": self.wikipedia_url,
+            }
+        }
 
 class Bonus(db.Model): # pylint: disable=too-few-public-methods
     __tablename__ = 'bonuses'
@@ -143,6 +179,57 @@ class Bonus(db.Model): # pylint: disable=too-few-public-methods
     subcategory = db.relationship('Subcategory')
     tournament = db.relationship('Tournament')
 
+    @property
+    def serialize(self):
+        parts = list(BonusPart.query.join(Bonus).filter_by(id=1).order_by(BonusPart.id.asc()))
+        json_result = {
+            "id": self.id,
+            "leadin": {
+                "raw": self.leadin,
+                "formatted": self.formatted_leadin,
+            },
+            "parts": [
+                {
+                    "id": part.id,
+                    "text": {
+                        "raw": part.text,
+                        "formatted": part.formatted_text
+                    },
+                    "answer": {
+                        "raw": part.answer,
+                        "formatted": part.formatted_answer,
+                    },
+                    "meta": {
+                        "created_at": part.created_at.isoformat(),
+                        "updated_at": part.updated_at.isoformat(),
+                        "wikipedia_url": part.wikipedia_url,
+                    }
+                } for part in parts
+            ],
+            "category": {
+                "id": self.category_id,
+                "name": self.category.name,
+            },
+            "meta": {
+                "quinterest_id": self.quinterest_id,
+                "created_at": self.created_at.isoformat(),
+                "updated_at": self.updated_at.isoformat(),
+                "errors_count": self.errors_count,
+            },
+        }
+        if self.subcategory is not None:
+            json_result["subcategory"] = {
+                "id": self.subcategory_id,
+                "name": self.subcategory.name,
+            }
+        if self.tournament is not None:
+            json_result["meta"]["tournament"] = {
+                "id": self.tournament_id,
+                "name": self.tournament.name,
+                "round": self.round,
+                "number": self.number,
+            },
+        return json_result
 
 class Tossup(db.Model): # pylint: disable=too-few-public-methods
     __tablename__ = 'tossups'
@@ -202,20 +289,3 @@ class Tossup(db.Model): # pylint: disable=too-few-public-methods
                 "wikipedia_url": self.wikipedia_url,
             },
         }
-
-class BonusPart(db.Model): # pylint: disable=too-few-public-methods
-    __tablename__ = 'bonus_parts'
-
-    id = db.Column(db.Integer, primary_key=True,
-                   server_default=text("nextval('bonus_parts_id_seq'::regclass)"))
-    bonus_id = db.Column(db.ForeignKey('bonuses.id'), index=True)
-    text = db.Column(db.Text, index=True)
-    answer = db.Column(db.Text, index=True)
-    formatted_text = db.Column(db.Text)
-    formatted_answer = db.Column(db.Text)
-    created_at = db.Column(DateTime, nullable=False)
-    updated_at = db.Column(DateTime, nullable=False)
-    number = db.Column(db.Integer, nullable=False)
-    wikipedia_url = db.Column(db.Text)
-
-    bonus = db.relationship('Bonus')

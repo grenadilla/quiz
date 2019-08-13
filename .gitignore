@@ -1,0 +1,7 @@
+quizvenv/
+.vscode/
+__pycache__/
+*.sql
+config.py 
+*.flaskenv
+sqlalchemytest.py

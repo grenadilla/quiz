@@ -257,7 +257,7 @@ class Tossup(db.Model): # pylint: disable=too-few-public-methods
 
     @property
     def serialize(self):
-        return {
+        json_result = {
             "id": self.id,
             "text": {
                 "raw": self.text,
@@ -271,17 +271,7 @@ class Tossup(db.Model): # pylint: disable=too-few-public-methods
                 "id": self.category_id,
                 "name": self.category.name,
             },
-            "subcategory": {
-                "id": self.subcategory_id,
-                "name": self.subcategory.name,
-            },
             "meta": {
-                "tournament": {
-                    "id": self.tournament_id,
-                    "name": self.tournament.name,
-                    "round": self.round,
-                    "number": self.number,
-                },
                 "quinterest_id": self.quinterest_id,
                 "created_at": self.created_at.isoformat(),
                 "updated_at": self.updated_at.isoformat(),
@@ -289,3 +279,16 @@ class Tossup(db.Model): # pylint: disable=too-few-public-methods
                 "wikipedia_url": self.wikipedia_url,
             },
         }
+        if self.subcategory is not None:
+            json_result["subcategory"] = {
+                "id": self.subcategory_id,
+                "name": self.subcategory.name,
+            },
+        if self.tournament is not None:
+            json_result["meta"]["tournament"] = {
+                "id": self.tournament_id,
+                "name": self.tournament.name,
+                "round": self.round,
+                "number": self.number,
+            },
+        return json_result

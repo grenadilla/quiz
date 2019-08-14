@@ -152,8 +152,8 @@ class BonusPart(db.Model): # pylint: disable=too-few-public-methods
                 "formatted": self.formatted_answer,
             },
             "meta": {
-                "created_at": self.created_at.isoformat(),
-                "updated_at": self.updated_at.isoformat(),
+                "created_at": self.created_at.isoformat() + 'Z',
+                "updated_at": self.updated_at.isoformat() + 'Z',
                 "wikipedia_url": self.wikipedia_url,
             }
         }
@@ -200,8 +200,8 @@ class Bonus(db.Model): # pylint: disable=too-few-public-methods
                         "formatted": part.formatted_answer,
                     },
                     "meta": {
-                        "created_at": part.created_at.isoformat(),
-                        "updated_at": part.updated_at.isoformat(),
+                        "created_at": part.created_at.isoformat() + 'Z',
+                        "updated_at": part.updated_at.isoformat() + 'Z',
                         "wikipedia_url": part.wikipedia_url,
                     }
                 } for part in parts
@@ -212,8 +212,8 @@ class Bonus(db.Model): # pylint: disable=too-few-public-methods
             },
             "meta": {
                 "quinterest_id": self.quinterest_id,
-                "created_at": self.created_at.isoformat(),
-                "updated_at": self.updated_at.isoformat(),
+                "created_at": self.created_at.isoformat() + 'Z',
+                "updated_at": self.updated_at.isoformat() + 'Z',
                 "errors_count": self.errors_count,
             },
         }
@@ -273,8 +273,8 @@ class Tossup(db.Model): # pylint: disable=too-few-public-methods
             },
             "meta": {
                 "quinterest_id": self.quinterest_id,
-                "created_at": self.created_at.isoformat(),
-                "updated_at": self.updated_at.isoformat(),
+                "created_at": self.created_at.isoformat() + 'Z',
+                "updated_at": self.updated_at.isoformat() + 'Z',
                 "errors_count": self.errors_count,
                 "wikipedia_url": self.wikipedia_url,
             },

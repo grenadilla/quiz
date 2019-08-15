@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src={{ url_for('static', filename="js/quiz.js") }}></script>
+{% endblock %}
+
+{% block content %}
+<h1>Quiz!</h1>
+{% endblock %}

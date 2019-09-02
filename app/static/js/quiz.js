@@ -2,6 +2,7 @@
 
 const questionBox = document.getElementById("question-box");
 const questionDetails = document.getElementById("question-details");
+const answerContainer = document.getElementById("answer-container");
 const submitButton = document.getElementById("submit-button");
 const answerInput = document.getElementById("answer-input");
 const buzzButton = document.getElementById("buzz-button");
@@ -78,6 +79,7 @@ function readQuestion(question) {
     questionDetails.innerHTML = detailsText;
     let questionArray = question.text.formatted.split(' ');
     let index = 0;
+    state.readingPaused = false;
     state.readingID = setInterval(function() {
         if(!state.readingPaused) {
             questionBox.innerHTML += questionArray[index] + ' ';
@@ -90,7 +92,9 @@ function readQuestion(question) {
 }
 
 function parseAnswer(userAnswer, actualAnswer) {
-    alert(userAnswer + '\n' + actualAnswer);
+    clearInterval(state.readingID);
+    questionBox.innerHTML = state.currentQuestion.text.formatted;
+    answerContainer.innerHTML = actualAnswer;
 }
 
 function buzz() {
@@ -101,10 +105,11 @@ function buzz() {
 }
 
 function answer() {
+    answerInput.disabled = true;
+    submitButton.disabled = true;
     parseAnswer(answerInput.value, state.currentQuestion.answer.formatted);
-    answerInput.value = '';
-    buzzButton.disabled = false;
-    state.readingPaused = false;
+    //answerInput.value = '';
+    //buzzButton.disabled = false;
 }
 
 buzzButton.addEventListener("click", buzz, false);

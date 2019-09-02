@@ -51,9 +51,76 @@ class Questions {
     }
 }
 
-const questions = new Questions();
+let state = {
+    "readingID": 0,
+    "readingPaused": false,
+    "currentQuestion": undefined,
+}
+
+function readQuestion(question) {
+    let questionArray = question.text.formatted.split(' ');
+    let index = 0;
+    state.readingID = setInterval(function() {
+        if(!state.readingPaused) {
+            questionBox.innerHTML += questionArray[index] + ' ';
+            index++;
+            if(index === questionArray.length) {
+                clearInterval(state.readingID);
+            }
+        }
+    }, 100)
+}
+
+function parseAnswer(userAnswer, actualAnswer) {
+    alert(userAnswer + '\n' + actualAnswer);
+}
+
 const questionBox = document.getElementById("question-box");
+const submitButton = document.getElementById("submit-button");
+const answerInput = document.getElementById("answer-input");
+const buzzButton = document.getElementById("buzz-button");
+const skipButton = document.getElementById("skip-button");
+const answerGroup = document.getElementById("answer-group");
+
+answerGroup.style.display = "none";
+
+function buzz() {
+    state.readingPaused = true;
+    answerGroup.style.display = '';
+    answerInput.focus();
+    buzzButton.disabled = true;
+}
+
+function answer() {
+    parseAnswer(answerInput.value, state.currentQuestion.answer.formatted);
+    answerInput.value = '';
+    buzzButton.disabled = false;
+    state.readingPaused = false;
+}
+
+buzzButton.addEventListener("click", buzz, false);
+
+submitButton.addEventListener("click", function() {
+    if(answerInput.value != '') {
+        answer();
+    }
+}, false);
+
+document.addEventListener("keyup", function(e) {
+    if(e.key === 'b' || e.key === ' ') {
+        buzz();
+    }
+}, false);
+
+answerGroup.addEventListener("keyup", function(e) {
+    if(e.key === "Enter" && answerInput.value != '') {
+        answer();
+    }
+}, false);
+
+const questions = new Questions();
 
 questions.getTossups().then(function(result) {
-    questionBox.innerHTML = questions.tossups[0].text.formatted;
+    state.currentQuestion = questions.tossups.shift();
+    readQuestion(state.currentQuestion);
 })

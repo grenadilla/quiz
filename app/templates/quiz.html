@@ -14,15 +14,15 @@
 <div class="container">
     <div class="row my-2">
         <div class="col-8">
-            <button class="btn btn-primary btn-lg btn-block" type="button">Buzz</button>
+            <button class="btn btn-primary btn-lg btn-block" id="buzz-button" type="button">Buzz</button>
         </div>
         <div class="col-4">
-            <button class="btn btn-warning btn-lg btn-block" type="button">Skip</button>
+            <button class="btn btn-warning btn-lg btn-block" id="skip-button" type="button">Skip</button>
         </div>
     </div>
     <div class="row my-2">
-        <div class="col input-group">
-            <input type="text" class="form-control" id="answer">
+        <div class="col input-group" id="answer-group">
+            <input type="text" class="form-control" id="answer-input">
             <div class="input-group-append">
                 <button class="btn btn-outline-secondary" id="submit-button" type="button">Submit</button>
             </div>
@@ -32,7 +32,7 @@
         <div class="col">
             <div class="card" id="question-container">
                 <div class="card-body" id="question-box">
-                    This is some text
+                    
                 </div>
             </div>
         </div>

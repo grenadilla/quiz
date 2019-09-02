@@ -1,5 +1,15 @@
 "use strict";
 
+const questionBox = document.getElementById("question-box");
+const questionDetails = document.getElementById("question-details");
+const submitButton = document.getElementById("submit-button");
+const answerInput = document.getElementById("answer-input");
+const buzzButton = document.getElementById("buzz-button");
+const skipButton = document.getElementById("skip-button");
+const answerGroup = document.getElementById("answer-group");
+
+answerGroup.style.display = "none";
+
 class Questions {
     constructor() {
         this.tossupURL = "http://127.0.0.1:5000/api/tossup"
@@ -58,6 +68,14 @@ let state = {
 }
 
 function readQuestion(question) {
+    let detailsText = "Tossup/" + question.category.name;
+    if("subcategory" in question) {
+        detailsText += '/' + question.subcategory.name;
+    }
+    if("tournament" in question.meta) {
+        detailsText += '/' + question.meta.tournament.name;
+    }
+    questionDetails.innerHTML = detailsText;
     let questionArray = question.text.formatted.split(' ');
     let index = 0;
     state.readingID = setInterval(function() {
@@ -74,15 +92,6 @@ function readQuestion(question) {
 function parseAnswer(userAnswer, actualAnswer) {
     alert(userAnswer + '\n' + actualAnswer);
 }
-
-const questionBox = document.getElementById("question-box");
-const submitButton = document.getElementById("submit-button");
-const answerInput = document.getElementById("answer-input");
-const buzzButton = document.getElementById("buzz-button");
-const skipButton = document.getElementById("skip-button");
-const answerGroup = document.getElementById("answer-group");
-
-answerGroup.style.display = "none";
 
 function buzz() {
     state.readingPaused = true;

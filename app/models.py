@@ -228,7 +228,7 @@ class Bonus(db.Model): # pylint: disable=too-few-public-methods
                 "name": self.tournament.name,
                 "round": self.round,
                 "number": self.number,
-            },
+            }
         return json_result
 
 class Tossup(db.Model): # pylint: disable=too-few-public-methods
@@ -283,12 +283,12 @@ class Tossup(db.Model): # pylint: disable=too-few-public-methods
             json_result["subcategory"] = {
                 "id": self.subcategory_id,
                 "name": self.subcategory.name,
-            },
+            }
         if self.tournament is not None:
             json_result["meta"]["tournament"] = {
                 "id": self.tournament_id,
                 "name": self.tournament.name,
                 "round": self.round,
                 "number": self.number,
-            },
+            }
         return json_result

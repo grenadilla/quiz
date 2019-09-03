@@ -71,7 +71,7 @@ let state = {
 }
 
 function readQuestion(question) {
-    let detailsText = "Tossup/" + question.category.name;
+    let detailsText = "Tossup " + question.id + "/" + question.category.name;
     if("subcategory" in question) {
         detailsText += '/' + question.subcategory.name;
     }

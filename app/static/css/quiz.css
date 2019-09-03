@@ -1,4 +1,13 @@
-#question-container {
+#main-display {
     height: 500px;
+}
+
+#question-container {
+    height: 100%;
     background:	#C0C0C0;
+}
+
+#info-container {
+    height: 100%;
+    background: #a2b9bc;
 }

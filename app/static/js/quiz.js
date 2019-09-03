@@ -144,6 +144,9 @@ document.addEventListener("keyup", function(e) {
     if(e.key === 'b' || e.key === ' ') {
         buzz();
     }
+    else if((e.key === 'n' || e.key === 's') && (answerGroup.style.display != '' || answerInput.disabled == true)) {
+        nextQuestion();
+    }
 }, false);
 
 answerGroup.addEventListener("keyup", function(e) {

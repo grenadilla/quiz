@@ -120,10 +120,10 @@ function nextQuestion() {
     answerInput.disabled = false;
     submitButton.disabled = false;
     answerGroup.style.display = "none";
-    if(state.questions.length <= 10 && state.loadingTossups == false) {
+    if(state.questions.tossups.length <= 10 && !state.loadingTossups) {
         state.loadingTossups = true;
         state.questions.getTossups().then(function(result) {
-            loadingTossups = false;
+            state.loadingTossups = false;
         });
     }
     state.currentQuestion = state.questions.tossups.shift();

@@ -1,6 +1,6 @@
 from app import app, db
 from app.models import Tossup, Bonus, BonusPart, Category, Subcategory, Tournament
-from flask import jsonify, request
+from flask import jsonify, request, render_template
 
 @app.route('/')
 @app.route('/index')
@@ -68,3 +68,7 @@ def search_bonuses():
     }
 
     return jsonify(result)
+
+@app.route('/quiz')
+def quiz():
+    return render_template('quiz.html')

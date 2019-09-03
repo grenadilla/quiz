@@ -110,12 +110,14 @@ function answer() {
     answerInput.disabled = true;
     submitButton.disabled = true;
     parseAnswer(answerInput.value, state.currentQuestion.answer.formatted);
+    skipButton.innerHTML = "Next";
 }
 
 function nextQuestion() {
     clearInterval(state.readingID);
     questionBox.innerHTML = '';
     answerInput.value = '';
+    skipButton.innerHTML = "Skip";
     buzzButton.disabled = false;
     answerInput.disabled = false;
     submitButton.disabled = false;

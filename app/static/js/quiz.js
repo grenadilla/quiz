@@ -66,6 +66,8 @@ let state = {
     "readingID": 0,
     "readingPaused": false,
     "currentQuestion": undefined,
+    "questions": new Questions(),
+    "loadingTossups": false,
 }
 
 function readQuestion(question) {
@@ -108,8 +110,22 @@ function answer() {
     answerInput.disabled = true;
     submitButton.disabled = true;
     parseAnswer(answerInput.value, state.currentQuestion.answer.formatted);
-    //answerInput.value = '';
-    //buzzButton.disabled = false;
+}
+
+function nextQuestion() {
+    answerInput.value = '';
+    buzzButton.disabled = false;
+    answerInput.disabled = false;
+    submitButton.disabled = false;
+    answerGroup.style.display = "none";
+    if(state.questions.length <= 10 && state.loadingTossups == false) {
+        state.loadingTossups = true;
+        state.questions.getTossups().then(function(result) {
+            loadingTossups = false;
+        });
+    }
+    state.currentQuestion = state.questions.tossups.shift();
+    readQuestion(state.currentQuestion);
 }
 
 buzzButton.addEventListener("click", buzz, false);
@@ -132,9 +148,10 @@ answerGroup.addEventListener("keyup", function(e) {
     }
 }, false);
 
-const questions = new Questions();
+//const questions = new Questions();
 
-questions.getTossups().then(function(result) {
-    state.currentQuestion = questions.tossups.shift();
-    readQuestion(state.currentQuestion);
+state.questions.getTossups(20).then(function(result) {
+    //state.currentQuestion = state.questions.tossups.shift();
+    //readQuestion(state.currentQuestion);
+    nextQuestion();
 })

@@ -113,6 +113,8 @@ function answer() {
 }
 
 function nextQuestion() {
+    clearInterval(state.readingID);
+    questionBox.innerHTML = '';
     answerInput.value = '';
     buzzButton.disabled = false;
     answerInput.disabled = false;
@@ -147,6 +149,8 @@ answerGroup.addEventListener("keyup", function(e) {
         answer();
     }
 }, false);
+
+skipButton.addEventListener("click", nextQuestion, false);
 
 //const questions = new Questions();
 

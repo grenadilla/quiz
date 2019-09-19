@@ -10,8 +10,10 @@ const skipButton = document.getElementById("skip-button");
 const answerGroup = document.getElementById("answer-group");
 const correctButton = document.getElementById("correct-button");
 const incorrectButton = document.getElementById("incorrect-button");
+const gradingButtons = document.getElementById("grading-buttons");
 
 answerGroup.style.display = "none";
+gradingButtons.style.display = "none";
 
 class Questions {
     constructor() {
@@ -100,6 +102,8 @@ function parseAnswer(userAnswer, actualAnswer) {
     clearInterval(state.readingID);
     questionBox.innerHTML = state.currentQuestion.text.formatted;
     answerContainer.innerHTML = actualAnswer;
+    skipButton.disabled = true;
+    gradingButtons.style.display = "";
 }
 
 function buzz() {
@@ -126,6 +130,15 @@ function nextQuestion() {
     answerInput.disabled = false;
     submitButton.disabled = false;
     answerGroup.style.display = "none";
+
+    //Reset grading display and value
+    gradingButtons.style.display = "none";
+    correctButton.classList.remove("btn-success");
+    correctButton.classList.add("btn-outline-success");
+    incorrectButton.classList.remove("btn-danger");
+    incorrectButton.classList.add("btn-outline-danger");
+    state.userCorrect = null;
+
     if(state.questions.tossups.length <= 10 && !state.loadingTossups) {
         state.loadingTossups = true;
         state.questions.getTossups().then(function(result) {
@@ -153,6 +166,7 @@ correctButton.addEventListener("click", function() {
         incorrectButton.classList.remove("btn-danger");
         incorrectButton.classList.add("btn-outline-danger");
     }
+    skipButton.disabled = false;
     state.userCorrect = true;
 });
 
@@ -165,6 +179,7 @@ incorrectButton.addEventListener("click", function() {
         correctButton.classList.remove("btn-success");
         correctButton.classList.add("btn-outline-success");
     }
+    skipButton.disabled = false;
     state.userCorrect = false;
 });
 
@@ -173,7 +188,9 @@ document.addEventListener("keyup", function(e) {
         buzz();
     }
     else if((e.key === 'n' || e.key === 's') && (answerGroup.style.display != '' || answerInput.disabled == true)) {
-        nextQuestion();
+        if (state.userCorrect !== null) {
+            nextQuestion();
+        }
     }
 }, false);
 

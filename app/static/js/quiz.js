@@ -8,6 +8,8 @@ const answerInput = document.getElementById("answer-input");
 const buzzButton = document.getElementById("buzz-button");
 const skipButton = document.getElementById("skip-button");
 const answerGroup = document.getElementById("answer-group");
+const correctButton = document.getElementById("correct-button");
+const incorrectButton = document.getElementById("incorrect-button");
 
 answerGroup.style.display = "none";
 
@@ -68,6 +70,7 @@ let state = {
     "currentQuestion": undefined,
     "questions": new Questions(),
     "loadingTossups": false,
+    "userCorrect": null,
 }
 
 function readQuestion(question) {
@@ -140,6 +143,30 @@ submitButton.addEventListener("click", function() {
         answer();
     }
 }, false);
+
+correctButton.addEventListener("click", function() {
+    if (state.userCorrect === null || state.userCorrect === false) {
+        correctButton.classList.remove("btn-outline-success");
+        correctButton.classList.add("btn-success");
+    }
+    if (state.userCorrect === false) {
+        incorrectButton.classList.remove("btn-danger");
+        incorrectButton.classList.add("btn-outline-danger");
+    }
+    state.userCorrect = true;
+});
+
+incorrectButton.addEventListener("click", function() {
+    if (state.userCorrect === null || state.userCorrect === true) {
+        incorrectButton.classList.remove("btn-outline-danger");
+        incorrectButton.classList.add("btn-danger");
+    }
+    if (state.userCorrect === true) {
+        correctButton.classList.remove("btn-success");
+        correctButton.classList.add("btn-outline-success");
+    }
+    state.userCorrect = false;
+});
 
 document.addEventListener("keyup", function(e) {
     if(e.key === 'b' || e.key === ' ') {

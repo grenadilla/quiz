@@ -11,6 +11,9 @@ const answerGroup = document.getElementById("answer-group");
 const correctButton = document.getElementById("correct-button");
 const incorrectButton = document.getElementById("incorrect-button");
 const gradingButtons = document.getElementById("grading-buttons");
+const correctNum = document.getElementById("correct-num");
+const incorrectNum = document.getElementById("incorrect-num");
+const missedNum = document.getElementById("missed-num");
 
 answerGroup.style.display = "none";
 gradingButtons.style.display = "none";
@@ -73,6 +76,9 @@ let state = {
     "questions": new Questions(),
     "loadingTossups": false,
     "userCorrect": null,
+    "correctNum": 0,
+    "incorrectNum": 0,
+    "missedNum": 0,
 }
 
 function readQuestion(question) {
@@ -121,6 +127,18 @@ function answer() {
 }
 
 function nextQuestion() {
+    if (state.userCorrect == null) {
+        state.missedNum++;
+        missedNum.innerHTML = state.missedNum;
+    }
+    else if (state.userCorrect == true) {
+        state.correctNum++;
+        correctNum.innerHTML = state.correctNum;
+    }
+    else if (state.userCorrect == false) {
+        state.incorrectNum++;
+        incorrectNum.innerHTML = state.incorrectNum;
+    }
     clearInterval(state.readingID);
     questionBox.innerHTML = '';
     answerInput.value = '';
@@ -207,5 +225,8 @@ skipButton.addEventListener("click", nextQuestion, false);
 state.questions.getTossups(20).then(function(result) {
     //state.currentQuestion = state.questions.tossups.shift();
     //readQuestion(state.currentQuestion);
+
+    //Calling nextQuestion increments missedNum
+    state.missedNum = -1;
     nextQuestion();
 })

@@ -81,6 +81,7 @@ let state = {
     "missedNum": 0,
 }
 
+// Displays the metadata and reads the question word by word
 function readQuestion(question) {
     let detailsText = "Tossup " + question.id + "/" + question.category.name;
     if("subcategory" in question) {
@@ -104,6 +105,8 @@ function readQuestion(question) {
     }, 100)
 }
 
+// If possible, will implement automatic answer checking
+// Otherwise just display grading buttons
 function parseAnswer(userAnswer, actualAnswer) {
     clearInterval(state.readingID);
     questionBox.innerHTML = state.currentQuestion.text.formatted;
@@ -112,6 +115,7 @@ function parseAnswer(userAnswer, actualAnswer) {
     gradingButtons.style.display = "";
 }
 
+// Pause question reading and allow answering
 function buzz() {
     state.readingPaused = true;
     answerGroup.style.display = '';
@@ -126,6 +130,7 @@ function answer() {
     skipButton.innerHTML = "Next";
 }
 
+// Updates grade display and resets button values
 function nextQuestion() {
     if (state.userCorrect == null) {
         state.missedNum++;
@@ -167,6 +172,7 @@ function nextQuestion() {
     readQuestion(state.currentQuestion);
 }
 
+// User indicates they answered correctly
 function chooseCorrect() {
     if (state.userCorrect === null || state.userCorrect === false) {
         correctButton.classList.remove("btn-outline-success");
@@ -180,6 +186,7 @@ function chooseCorrect() {
     state.userCorrect = true;
 }
 
+// User indicates they answered incorrectly
 function chooseIncorrect() {
     if (state.userCorrect === null || state.userCorrect === true) {
         incorrectButton.classList.remove("btn-outline-danger");

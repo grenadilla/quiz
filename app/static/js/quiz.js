@@ -167,15 +167,7 @@ function nextQuestion() {
     readQuestion(state.currentQuestion);
 }
 
-buzzButton.addEventListener("click", buzz, false);
-
-submitButton.addEventListener("click", function() {
-    if(answerInput.value != '') {
-        answer();
-    }
-}, false);
-
-correctButton.addEventListener("click", function() {
+function chooseCorrect() {
     if (state.userCorrect === null || state.userCorrect === false) {
         correctButton.classList.remove("btn-outline-success");
         correctButton.classList.add("btn-success");
@@ -186,9 +178,9 @@ correctButton.addEventListener("click", function() {
     }
     skipButton.disabled = false;
     state.userCorrect = true;
-});
+}
 
-incorrectButton.addEventListener("click", function() {
+function chooseIncorrect() {
     if (state.userCorrect === null || state.userCorrect === true) {
         incorrectButton.classList.remove("btn-outline-danger");
         incorrectButton.classList.add("btn-danger");
@@ -199,7 +191,19 @@ incorrectButton.addEventListener("click", function() {
     }
     skipButton.disabled = false;
     state.userCorrect = false;
-});
+}
+
+buzzButton.addEventListener("click", buzz, false);
+
+submitButton.addEventListener("click", function() {
+    if(answerInput.value != '') {
+        answer();
+    }
+}, false);
+
+correctButton.addEventListener("click", chooseCorrect);
+
+incorrectButton.addEventListener("click", chooseIncorrect);
 
 document.addEventListener("keyup", function(e) {
     if(e.key === 'b' || e.key === ' ') {
@@ -210,6 +214,14 @@ document.addEventListener("keyup", function(e) {
             nextQuestion();
         }
     }
+
+    //Only allow c and i keyboard shortcuts when buttons are onscreen
+    else if (e.key === 'c' && gradingButtons.style.display === "") {
+        chooseCorrect();
+    }
+    else if (e.key === 'i' && gradingButtons.style.display === "") {
+        chooseIncorrect();
+    }
 }, false);
 
 answerGroup.addEventListener("keyup", function(e) {
@@ -218,7 +230,10 @@ answerGroup.addEventListener("keyup", function(e) {
     }
 }, false);
 
-skipButton.addEventListener("click", nextQuestion, false);
+skipButton.addEventListener("click", function() {
+    this.blur();
+    nextQuestion();
+}, false);
 
 //const questions = new Questions();
 

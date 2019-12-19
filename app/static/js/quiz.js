@@ -14,6 +14,8 @@ const gradingButtons = document.getElementById("grading-buttons");
 const correctNum = document.getElementById("correct-num");
 const incorrectNum = document.getElementById("incorrect-num");
 const missedNum = document.getElementById("missed-num");
+const countdownBar = document.getElementById("countdown-bar");
+const countdownClock = document.getElementById("countdown-clock");
 
 answerGroup.style.display = "none";
 gradingButtons.style.display = "none";
@@ -79,6 +81,20 @@ let state = {
     "correctNum": 0,
     "incorrectNum": 0,
     "missedNum": 0,
+    "currentTime": 0,
+    "totalTime": 0,
+}
+
+// Converts milliseconds to human readable
+function getTimeString(ms) {
+    let deciseconds = Math.floor((ms % 1000) / 100);
+    let seconds = Math.floor((ms / 1000) % 60);
+    let minutes = Math.floor((ms / (1000 * 60)) % 60);
+
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return minutes + ":" + seconds + "." + deciseconds;
 }
 
 // Displays the metadata and reads the question word by word
@@ -91,15 +107,33 @@ function readQuestion(question) {
         detailsText += '/' + question.meta.tournament.name;
     }
     questionDetails.innerHTML = detailsText;
+
     let questionArray = question.text.formatted.split(' ');
+
+    // Time to read the question plus 10 seconds
+    state.totalTime = questionArray.length * 100 + 10000;
+    state.currentTime = state.totalTime;
+
     let index = 0;
     state.readingPaused = false;
     state.readingID = setInterval(function() {
         if(!state.readingPaused) {
-            questionBox.innerHTML += questionArray[index] + ' ';
-            index++;
-            if(index === questionArray.length) {
+            countdownClock.innerHTML = getTimeString(state.currentTime);
+            countdownBar.style.width = (state.currentTime / state.totalTime * 100) + '%';
+            state.currentTime -= 100;
+
+            if (index !== questionArray.length) {
+                questionBox.innerHTML += questionArray[index] + ' ';
+                index++;
+            }
+            
+            if(state.currentTime === 0) {
+                countdownClock.innerHTML = getTimeString(state.currentTime);
+                countdownBar.style.width = (state.currentTime / state.totalTime * 100) + '%';
                 clearInterval(state.readingID);
+                skipButton.innerHTML = "Next";
+                state.missedNum++;
+                buzzButton.disabled = true;
             }
         }
     }, 100)
@@ -117,10 +151,12 @@ function parseAnswer(userAnswer, actualAnswer) {
 
 // Pause question reading and allow answering
 function buzz() {
-    state.readingPaused = true;
-    answerGroup.style.display = '';
-    answerInput.focus();
-    buzzButton.disabled = true;
+    if (state.currentTime !== 0) {
+        state.readingPaused = true;
+        answerGroup.style.display = '';
+        answerInput.focus();
+        buzzButton.disabled = true;
+    }
 }
 
 function answer() {

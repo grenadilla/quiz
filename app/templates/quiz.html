@@ -13,6 +13,14 @@
 {% block content %}
 <div class="container">
     <div class="row my-2">
+        <div class="col">
+            <div class="progress" id="countdown-holder">
+                <div class="progress-bar bg-info" id="countdown-bar" role="progressbar"></div>
+                <h5 id="countdown-clock"></h5>
+            </div>
+        </div>
+    </div>
+    <div class="row my-2">
         <div class="col-8">
             <button class="btn btn-primary btn-lg btn-block" id="buzz-button" type="button" title="Shortcut: SPACE">Buzz</button>
         </div>

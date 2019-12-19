@@ -83,6 +83,8 @@ let state = {
     "missedNum": 0,
     "currentTime": 0,
     "totalTime": 0,
+    "totalAnswerTime": 5000,
+    "answeringID": 0,
 }
 
 // Converts milliseconds to human readable
@@ -156,13 +158,28 @@ function buzz() {
         answerGroup.style.display = '';
         answerInput.focus();
         buzzButton.disabled = true;
+        
+        state.currentTime = state.totalAnswerTime;
+        state.answeringID = setInterval(function() {
+            countdownClock.innerHTML = getTimeString(state.currentTime);
+            countdownBar.style.width = (state.currentTime / state.totalAnswerTime * 100) + '%';
+            state.currentTime -= 100;
+
+            if (state.currentTime === 0) {
+                clearInterval(state.answeringID);
+                countdownClock.innerHTML = getTimeString(state.currentTime);
+                countdownBar.style.width = (state.currentTime / state.totalAnswerTime * 100) + '%';
+                answer();
+                state.userCorrect = false;
+            }
+        }, 100);
     }
 }
 
 function answer() {
+    clearInterval(state.answeringID);
     answerInput.disabled = true;
     submitButton.disabled = true;
-    parseAnswer(answerInput.value, state.currentQuestion.answer.formatted);
     skipButton.innerHTML = "Next";
 }
 
@@ -241,6 +258,7 @@ buzzButton.addEventListener("click", buzz, false);
 submitButton.addEventListener("click", function() {
     if(answerInput.value != '') {
         answer();
+        parseAnswer(answerInput.value, state.currentQuestion.answer.formatted);
     }
 }, false);
 
@@ -272,6 +290,7 @@ document.addEventListener("keyup", function(e) {
 answerGroup.addEventListener("keyup", function(e) {
     if(e.key === "Enter" && answerInput.value != '') {
         answer();
+        parseAnswer(answerInput.value, state.currentQuestion.answer.formatted);
     }
 }, false);
 

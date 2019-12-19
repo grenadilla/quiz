@@ -216,8 +216,10 @@ document.addEventListener("keyup", function(e) {
     if(e.key === 'b' || e.key === ' ') {
         buzz();
     }
-    else if((e.key === 'n' || e.key === 's') && (answerGroup.style.display != '' || answerInput.disabled == true)) {
-        if (state.userCorrect !== null) {
+    else if(e.key === 'n' || e.key === 's') {
+        // Allow skipping only if user has not answered or if they have graded themselves (next question)
+        if ((answerGroup.style.display !== '' && gradingButtons.style.display !== '') 
+            || state.userCorrect !== null) {
             nextQuestion();
         }
     }

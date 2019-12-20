@@ -51,7 +51,7 @@ class Questions {
         });
     }
     getTossups(num=10, category, subcategory) {
-        let url = this.tossupURL + "?" + "per_page=" + num;
+        let url = this.tossupURL + "?randomize=true&per_page=" + num;
         if(category !== undefined) {
             url += "&category" + category;
         }

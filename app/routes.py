@@ -1,6 +1,16 @@
 from app import app, db
 from app.models import Tossup, Bonus, BonusPart, Category, Subcategory, Tournament
 from flask import jsonify, request, render_template
+import random
+
+def random_id_query(query, model, num=1):
+    min = model.query.first().id
+    max = model.query.order_by(model.id.desc()).first().id
+
+    if num > max - min:
+        num = max - min
+    ids = random.sample(range(min, max + 1), num)
+    return query.filter(model.id.in_(ids))
 
 @app.route('/')
 @app.route('/index')
@@ -18,6 +28,7 @@ def search_tossups():
     per_page = request.args.get('per_page', 10, type=int)
     category = request.args.get('category', type=int)
     subcategory = request.args.get('subcategory', type=int)
+    randomize = request.args.get('randomize', default=False, type=bool)
 
     tossups = Tossup.query
 
@@ -26,6 +37,11 @@ def search_tossups():
     if subcategory is not None:
         tossups = tossups.join(Tossup.subcategory, aliased=True).filter_by(id=subcategory)
 
+    # randomize requires number of objects. If not randomizing but given a total amount,
+    # limit the query to that amount
+    if randomize:
+        tossups = random_id_query(tossups, Tossup, per_page)
+    
     tossups = tossups.paginate(page=page, per_page=per_page, error_out=False)
 
     result = {

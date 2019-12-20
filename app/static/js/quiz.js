@@ -267,7 +267,7 @@ correctButton.addEventListener("click", chooseCorrect);
 incorrectButton.addEventListener("click", chooseIncorrect);
 
 document.addEventListener("keyup", function(e) {
-    if(e.key === 'b' || e.key === ' ') {
+    if((e.key === 'b' || e.key === ' ') && answerGroup.style.display === "none") {
         buzz();
     }
     else if(e.key === 'n' || e.key === 's') {

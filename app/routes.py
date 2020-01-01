@@ -10,7 +10,11 @@ def random_id_query(query, model, num=1):
     if num > max - min:
         num = max - min
     ids = random.sample(range(min, max + 1), num)
-    return query.filter(model.id.in_(ids))
+    results = query.filter(model.id.in_(ids))
+
+    while results.count() < num:
+        results = results.union(random_id_query(query, model, num - results.count()))
+    return results
 
 @app.route('/')
 @app.route('/index')

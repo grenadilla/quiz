@@ -69,6 +69,20 @@ class Category(db.Model): # pylint: disable=too-few-public-methods
     created_at = db.Column(DateTime, nullable=False)
     updated_at = db.Column(DateTime, nullable=False)
 
+    @property
+    def serialize(self):
+        subcategories = list(Subcategory.query.join(Category)
+                            .filter(Category.id == self.id).order_by(Subcategory.id.asc()))
+        json_result = {
+            "id": self.id,
+            "name": self.name,
+        }
+        if len(subcategories) > 0:
+            json_result["subcategories"] = []
+            for subcategory in subcategories:
+                json_result["subcategories"].append(subcategory.serialize)
+        
+        return json_result
 
 class Error(db.Model): # pylint: disable=too-few-public-methods
     __tablename__ = 'errors'
@@ -120,6 +134,13 @@ class Subcategory(db.Model): # pylint: disable=too-few-public-methods
     updated_at = db.Column(DateTime, nullable=False)
 
     category = db.relationship('Category')
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
 
 class BonusPart(db.Model): # pylint: disable=too-few-public-methods
     __tablename__ = 'bonus_parts'

@@ -89,6 +89,11 @@ def search_bonuses():
 
     return jsonify(result)
 
+@app.route('/api/categories')
+def get_categories():
+    categories = Category.query.all()
+    return jsonify([category.serialize for category in categories])
+
 @app.route('/quiz')
 def quiz():
     return render_template('quiz.html')

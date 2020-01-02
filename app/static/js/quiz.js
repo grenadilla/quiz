@@ -1,5 +1,8 @@
 "use strict";
 
+import getData from './getdata.js';
+import categories from './categories.js';
+
 const questionBox = document.getElementById("question-box");
 const questionDetails = document.getElementById("question-details");
 const answerContainer = document.getElementById("answer-container");
@@ -25,31 +28,7 @@ class Questions {
         this.tossupURL = "http://127.0.0.1:5000/api/tossup"
         this.tossups = [];
     }
-    getData(url) {
-        return new Promise(function(resolve, reject) {
-            let request = new XMLHttpRequest();
-            request.open('GET', url);
-            request.responseType = 'json';
-            request.onload = function() {
-                if (this.status >= 200 && this.status < 300) {
-                    resolve(request.response);
-                } 
-                else {
-                    reject({
-                        status: this.status,
-                        statusText: request.statusText
-                    });
-                }
-            };
-            request.onerror = function() {
-              reject({
-                status: this.status,
-                statusText: request.statusText
-              });
-            };
-            request.send();
-        });
-    }
+    
     getTossups(num=10, category, subcategory) {
         let url = this.tossupURL + "?randomize=true&per_page=" + num;
         if(category !== undefined) {
@@ -60,7 +39,7 @@ class Questions {
         }
         let self = this;
         return new Promise(function(resolve, reject) {
-            let tossupRequest = self.getData(url);
+            let tossupRequest = getData(url);
             tossupRequest.then(function(result) {
                 self.tossups = self.tossups.concat(result.results);
                 resolve();
@@ -134,8 +113,8 @@ function readQuestion(question) {
                 countdownBar.style.width = (state.currentTime / state.totalTime * 100) + '%';
                 clearInterval(state.readingID);
                 skipButton.innerHTML = "Next";
-                state.missedNum++;
                 buzzButton.disabled = true;
+                answerContainer.innerHTML = state.currentQuestion.answer.formatted;
             }
         }
     }, 100)
@@ -308,4 +287,8 @@ state.questions.getTossups(20).then(function(result) {
     //Calling nextQuestion increments missedNum
     state.missedNum = -1;
     nextQuestion();
-})
+});
+
+document.addEventListener("DOMContentLoaded", function(event) { 
+    categories.generateCheckboxes("http://127.0.0.1:5000/api/categories", "select-categories");
+});

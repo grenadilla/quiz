@@ -202,7 +202,7 @@ class Bonus(db.Model): # pylint: disable=too-few-public-methods
 
     @property
     def serialize(self):
-        parts = list(BonusPart.query.join(Bonus).filter_by(id=1).order_by(BonusPart.id.asc()))
+        parts = list(BonusPart.query.join(Bonus).filter(Bonus.id == self.id).order_by(BonusPart.id.asc()))
         json_result = {
             "id": self.id,
             "leadin": {

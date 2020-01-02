@@ -2,7 +2,7 @@
 
 {% block scripts %}
 {{ super() }}
-<script type="text/javascript" src={{ url_for('static', filename="js/quiz.js") }}></script>
+<script type="module" src={{ url_for('static', filename="js/quiz.js") }}></script>
 {% endblock %}
 
 {% block styles %}
@@ -48,7 +48,22 @@
                     <p>Missed: <span id="missed-num">0</span></p>
                 </div>
             </div>
+
+            <div class="accordion" id="category-accordion">
+                <div class="card">
+                    <div class="card-header" data-toggle="collapse" data-target="#collapse-categories">
+                        Categories &#x25BC
+                    </div>
+              
+                    <div id="collapse-categories" class="collapse" data-parent="#category-accordion">
+                        <div class="card-body" id="select-categories">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <div class="col-9">
             <div class="card" id="question-container">
                 <div class="card-header">

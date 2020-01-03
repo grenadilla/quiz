@@ -51,6 +51,10 @@ class CategorySelector {
             input.classList.add("form-check-input");
             input.setAttribute("type", "checkbox");
             input.setAttribute("checked", true);
+            input.addEventListener("click", () => {
+                let key = category.id;
+                this.selectedCategories.set(key, !this.selectedCategories.get(key));
+            });
 
             let label = document.createElement("label");
             label.classList.add("form-check-label");

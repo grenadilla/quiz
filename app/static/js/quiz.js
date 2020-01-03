@@ -27,15 +27,16 @@ class Questions {
     constructor() {
         this.tossupURL = "http://127.0.0.1:5000/api/tossup"
         this.tossups = [];
+        this.invalidTossups = [];
     }
     
-    getTossups(num=10, category, subcategory) {
+    loadTossups(num=10, categoryID, subcategoryID) {
         let url = this.tossupURL + "?randomize=true&per_page=" + num;
-        if(category !== undefined) {
-            url += "&category" + category;
+        if(categoryID !== undefined) {
+            url += "&category" + categoryID;
         }
-        if(subcategory !== undefined) {
-            url += "&subcategory" + subcategory;
+        if(subcategoryID !== undefined) {
+            url += "&subcategory" + subcategoryID;
         }
         let self = this;
         return new Promise(function(resolve, reject) {
@@ -43,9 +44,18 @@ class Questions {
             tossupRequest.then(function(result) {
                 self.tossups = self.tossups.concat(result.results);
                 resolve();
-            }).catch(function() {
-
+            }).catch(function(error) {
+                console.error(error);
             });
+        });
+    }
+
+    getTossup(selectedCategories) {
+        let self = this;
+        return new Promise(function(resolve, reject) {
+            resolve(self.tossups.shift());
+        }).catch(function(error) {
+            console.error(error);
         });
     }
 }
@@ -196,12 +206,15 @@ function nextQuestion() {
 
     if(state.questions.tossups.length <= 10 && !state.loadingTossups) {
         state.loadingTossups = true;
-        state.questions.getTossups().then(function(result) {
+        state.questions.loadTossups().then(function(result) {
             state.loadingTossups = false;
         });
     }
-    state.currentQuestion = state.questions.tossups.shift();
-    readQuestion(state.currentQuestion);
+
+    state.questions.getTossup().then(function(result) {
+        state.currentQuestion = result;
+        readQuestion(state.currentQuestion);
+    });
 }
 
 // User indicates they answered correctly
@@ -280,7 +293,7 @@ skipButton.addEventListener("click", function() {
 
 //const questions = new Questions();
 
-state.questions.getTossups(20).then(function(result) {
+state.questions.loadTossups(20).then(function(result) {
     //state.currentQuestion = state.questions.tossups.shift();
     //readQuestion(state.currentQuestion);
 
@@ -291,4 +304,5 @@ state.questions.getTossups(20).then(function(result) {
 
 document.addEventListener("DOMContentLoaded", function(event) { 
     state.categorySelector = new CategorySelector("http://127.0.0.1:5000/api/categories", "select-categories");
+    state.questions.selectedCategories = state.categorySelector.getSelectedCategories();
 });

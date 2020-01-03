@@ -1,7 +1,7 @@
 "use strict";
 
 import getData from './getdata.js';
-import CategorySelector from './category-selector.js/index.js.js';
+import CategorySelector from './category-selector.js';
 
 const questionBox = document.getElementById("question-box");
 const questionDetails = document.getElementById("question-details");
@@ -290,5 +290,5 @@ state.questions.getTossups(20).then(function(result) {
 });
 
 document.addEventListener("DOMContentLoaded", function(event) { 
-    let categorySelector = new CategorySelector("http://127.0.0.1:5000/api/categories", "select-categories")
+    state.categorySelector = new CategorySelector("http://127.0.0.1:5000/api/categories", "select-categories");
 });

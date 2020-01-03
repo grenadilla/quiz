@@ -12,15 +12,29 @@ class CategorySelector {
         let categoriesRequest = getData(url);
         let self = this;
         categoriesRequest.then(function(result) {
-            self.categories = result;
+            // Map from ID to categories
+            self.categories = new Map();
+            for (const category of result) {
+                self.categories.set(category.id, category);
+            }
+
+            self.selectedCategories = new Map();
+            for (const category of self.categories.values()) {
+                self.selectedCategories.set(category.id, true);
+            }
+
             self.generateCheckboxes();
         }).catch(function(error) {
             console.error(error);
         });
     }
 
+    getSelectedCategories() {
+        return this.selectedCategories;
+    }
+
     generateCheckboxes() {
-        for (const category of this.categories) {
+        for (const category of this.categories.values()) {
             let card = document.createElement("div");
             card.classList.add("card");
 

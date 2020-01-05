@@ -1,6 +1,6 @@
 "use strict";
 
-import getData from './getdata.js';
+import QuestionHolder from './question-holder.js';
 import CategorySelector from './category-selector.js';
 
 const questionBox = document.getElementById("question-box");
@@ -23,90 +23,20 @@ const countdownClock = document.getElementById("countdown-clock");
 answerGroup.style.display = "none";
 gradingButtons.style.display = "none";
 
-class Questions {
-    constructor() {
-        this.tossupURL = "http://127.0.0.1:5000/api/tossup"
-        this.tossups = [];
-        this.invalidTossups = [];
-    }
-    
-    // Gets tossups from the database through the api
-    // Call when tossups are running low or selected categories are changed
-    loadTossups(num=10, categoryID, subcategoryID) {
-        let url = this.tossupURL + "?randomize=true&per_page=" + num;
-        if(categoryID !== undefined) {
-            url += "&category" + categoryID;
-        }
-        if(subcategoryID !== undefined) {
-            url += "&subcategory" + subcategoryID;
-        }
-        let self = this;
-        return new Promise(function(resolve, reject) {
-            let tossupRequest = getData(url);
-            tossupRequest.then(function(result) {
-                self.tossups = self.tossups.concat(result.results);
-                resolve();
-            }).catch(function(error) {
-                console.error(error);
-            });
-        });
-    }
-
-    // Called in getTossup to remove invalid tossups and add back newly valid tossups
-    // based on selected categories
-    sortTossups(selectedCategories) {
-        // Remove invalid
-        let newInvalid = [];
-        for (let i = 0; i < this.tossups.length; i++) {
-            if (!selectedCategories.get(this.tossups[i].category.id)) {
-                // Tossup is not in selected category, move into invalid tossups
-                newInvalid.push(this.tossups.splice(i, 1)[0]);
-                i--;
-            }
-        }
-
-        // Add back valid
-        for (let i = 0; i < this.invalidTossups.length; i++) {
-            if (selectedCategories.get(this.invalidTossups[i].category.id)) {
-                // Tossup is in selected category, move into valid tossups
-                this.tossups.push(this.invalidTossups.splice(i, 1)[0]);
-                i--;
-            }
-        }
-        this.invalidTossups.concat(newInvalid);
-    }
-
-    // Returns a promise that resolves a single tossup to be read as a question
-    getTossup(selectedCategories) {
-        let self = this;
-        return new Promise(function(resolve, reject) {
-            if (selectedCategories != undefined) {
-                self.sortTossups(selectedCategories);
-            }
-
-            // Return random element of tossups to randomize possible categories
-            let index = Math.random() * self.tossups.length;
-            resolve(self.tossups.splice(index, 1)[0]);
-        }).catch(function(error) {
-            console.error(error);
-        });
-    }
-}
-
 let state = {
-    "readingID": 0,
-    "readingPaused": false,
-    "currentQuestion": undefined,
-    "questions": new Questions(),
-    "loadingTossups": false,
-    "userCorrect": null,
-    "correctNum": 0,
-    "incorrectNum": 0,
-    "missedNum": 0,
-    "currentTime": 0,
-    "totalTime": 0,
-    "totalAnswerTime": 5000,
-    "answeringID": 0,
+    readingID: 0,
+    readingPaused: false,
+    currentQuestion: undefined,
+    questionHolder: new QuestionHolder("http://127.0.0.1:5000/api/tossup"),
+    loadingTossups: false,
+    userCorrect: null,
+    correctNum: 0,
+    incorrectNum: 0,
+    missedNum: 0,
+    currentTime: 0,
+    totalTime: 0,
+    totalAnswerTime: 5000,
+    answeringID: 0,
 }
 
 // Converts milliseconds to human readable
@@ -237,9 +167,9 @@ function nextQuestion() {
     incorrectButton.classList.add("btn-outline-danger");
     state.userCorrect = null;
 
-    if(state.questions.tossups.length <= 10 && !state.loadingTossups) {
+    if(state.questionHolder.tossups.length <= 10 && !state.loadingTossups) {
         state.loadingTossups = true;
-        state.questions.loadTossups().then(function(result) {
+        state.questionHolder.loadTossups().then(function(result) {
             state.loadingTossups = false;
         });
     }
@@ -249,7 +179,7 @@ function nextQuestion() {
     if (state.categorySelector.categoriesHaveChanged()) {
         categoryArg = state.categorySelector.getSelectedCategories();
     }
-    state.questions.getTossup(categoryArg).then(function(result) {
+    state.questionHolder.getTossup(categoryArg).then(function(result) {
         state.currentQuestion = result;
         readQuestion(state.currentQuestion);
     });
@@ -333,10 +263,7 @@ document.addEventListener(CategorySelector.addCategoryEvent.type, function(event
     
 });
 
-state.questions.loadTossups(20).then(function(result) {
-    //state.currentQuestion = state.questions.tossups.shift();
-    //readQuestion(state.currentQuestion);
-
+state.questionHolder.loadTossups(20).then(function(result) {
     //Calling nextQuestion increments missedNum
     state.missedNum = -1;
     nextQuestion();
@@ -344,5 +271,5 @@ state.questions.loadTossups(20).then(function(result) {
 
 document.addEventListener("DOMContentLoaded", function(event) { 
     state.categorySelector = new CategorySelector("http://127.0.0.1:5000/api/categories", "select-categories");
-    state.questions.selectedCategories = state.categorySelector.getSelectedCategories();
+    state.questionHolder.selectedCategories = state.categorySelector.getSelectedCategories();
 });

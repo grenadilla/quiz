@@ -83,7 +83,10 @@ class Questions {
             if (selectedCategories != undefined) {
                 self.sortTossups(selectedCategories);
             }
-            resolve(self.tossups.shift());
+
+            // Return random element of tossups to randomize possible categories
+            let index = Math.random() * self.tossups.length;
+            resolve(self.tossups.splice(index, 1)[0]);
         }).catch(function(error) {
             console.error(error);
         });
@@ -326,7 +329,9 @@ skipButton.addEventListener("click", function() {
     nextQuestion();
 }, false);
 
-//const questions = new Questions();
+document.addEventListener(CategorySelector.addCategoryEvent.type, function(event) {
+    
+});
 
 state.questions.loadTossups(20).then(function(result) {
     //state.currentQuestion = state.questions.tossups.shift();

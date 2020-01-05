@@ -6,6 +6,8 @@ class CategorySelector {
     static COLLAPSEPREFIX = "collapse-prefix";
     static ACCORDIANID = "select-categories";
 
+    static addCategoryEvent = new Event("addCategory");
+
     constructor(url, containerID) {
         this.categoriesChanged = true;
         this.container = document.getElementById(containerID);
@@ -48,9 +50,9 @@ class CategorySelector {
 
             let header = document.createElement("div");
             header.classList.add("card-header");
-            header.setAttribute("id", this.HEADERPREFIX + category.id);
+            header.setAttribute("id", CategorySelector.HEADERPREFIX + category.id);
             header.setAttribute("data-toggle", "collapse");
-            header.setAttribute("data-target", "#" + this.COLLAPSEPREFIX + category.id);
+            header.setAttribute("data-target", "#" + CategorySelector.COLLAPSEPREFIX + category.id);
 
             let form = document.createElement("div");
             form.classList.add("form-check");
@@ -63,8 +65,13 @@ class CategorySelector {
             // Event listener for changing categories
             input.addEventListener("click", () => {
                 let key = category.id;
-                this.selectedCategories.set(key, !this.selectedCategories.get(key));
+                let selected = !this.selectedCategories.get(key);
+                this.selectedCategories.set(key, selected);
                 this.categoriesChanged = true;
+
+                if (selected) {
+                    document.dispatchEvent(CategorySelector.addCategoryEvent);
+                }
             });
 
             let label = document.createElement("label");
@@ -78,8 +85,8 @@ class CategorySelector {
             
             let collapse = document.createElement("div");
             collapse.classList.add("collapse");
-            collapse.setAttribute("id", this.COLLAPSEPREFIX + category.id);
-            collapse.setAttribute("data-parent", "#" + this.ACCORDIANID);
+            collapse.setAttribute("id", CategorySelector.COLLAPSEPREFIX + category.id);
+            collapse.setAttribute("data-parent", "#" + CategorySelector.ACCORDIANID);
 
             let cardBody = document.createElement("div");
             // set cardBody innerhtml to subcategories

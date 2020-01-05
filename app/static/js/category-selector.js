@@ -7,6 +7,7 @@ class CategorySelector {
     static ACCORDIANID = "select-categories";
 
     constructor(url, containerID) {
+        this.categoriesChanged = true;
         this.container = document.getElementById(containerID);
 
         let categoriesRequest = getData(url);
@@ -30,7 +31,14 @@ class CategorySelector {
     }
 
     getSelectedCategories() {
+        this.categoriesChanged = false;
         return this.selectedCategories;
+    }
+
+    categoriesHaveChanged() {
+        // Tracks whether selected categories have changed since the last call
+        // to getSelectedCategories
+        return this.categoriesChanged;
     }
 
     generateCheckboxes() {
@@ -51,9 +59,12 @@ class CategorySelector {
             input.classList.add("form-check-input");
             input.setAttribute("type", "checkbox");
             input.setAttribute("checked", true);
+
+            // Event listener for changing categories
             input.addEventListener("click", () => {
                 let key = category.id;
                 this.selectedCategories.set(key, !this.selectedCategories.get(key));
+                this.categoriesChanged = true;
             });
 
             let label = document.createElement("label");

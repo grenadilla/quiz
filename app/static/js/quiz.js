@@ -135,10 +135,7 @@ function answer() {
     skipButton.innerHTML = "Next";
 }
 
-// Updates grade display and resets button values
-function nextQuestion() {
-    console.log(state.questionHolder);
-
+function gradePlayer() {
     if (state.userCorrect == null) {
         state.missedNum++;
         missedNum.innerHTML = state.missedNum;
@@ -151,6 +148,9 @@ function nextQuestion() {
         state.incorrectNum++;
         incorrectNum.innerHTML = state.incorrectNum;
     }
+}
+
+function resetDisplay() {
     clearInterval(state.readingID);
     questionBox.innerHTML = '';
     answerInput.value = '';
@@ -168,11 +168,20 @@ function nextQuestion() {
     incorrectButton.classList.remove("btn-danger");
     incorrectButton.classList.add("btn-outline-danger");
     state.userCorrect = null;
+}
+
+// Updates grade display and resets button values
+function nextQuestion() {
+    console.log(state.questionHolder);
+
+    gradePlayer();
+    resetDisplay();
 
     // Only pass in selectedCategories if they have changed, otherwise we can use previous values
+    let categoriesChanged = state.categorySelector.categoriesHaveChanged();
     let selectedCategories = state.categorySelector.getSelectedCategories();
     // Only pass in selected categories if they have changed
-    state.questionHolder.getTossup(state.categorySelector.categoriesHaveChanged() ? selectedCategories : undefined)
+    state.questionHolder.getTossup(categoriesChanged ? selectedCategories : undefined)
         .then(function(result) {
         // Load extra tossups from api if running short. Called here so that
         // valid and invalid tossups are already sorted

@@ -1,10 +1,17 @@
 import getData from './getdata.js';
 
 class QuestionHolder {
+    static MINTOSSUPS = 10;
+    static TARGETTOSSUPS = 30;
+
     constructor(url) {
         this.tossupURL = url;
         this.tossups = [];
         this.invalidTossups = [];
+    }
+
+    shouldLoadTossups() {
+        return this.tossups.length < QuestionHolder.MINTOSSUPS;
     }
     
     // Gets tossups from the database through the api
@@ -12,10 +19,10 @@ class QuestionHolder {
     loadTossups(num=10, categoryID, subcategoryID) {
         let url = this.tossupURL + "?randomize=true&per_page=" + num;
         if(categoryID !== undefined) {
-            url += "&category" + categoryID;
+            url += "&category=" + categoryID;
         }
         if(subcategoryID !== undefined) {
-            url += "&subcategory" + subcategoryID;
+            url += "&subcategory=" + subcategoryID;
         }
         let self = this;
         return new Promise(function(resolve, reject) {
@@ -27,6 +34,16 @@ class QuestionHolder {
                 console.error(error);
             });
         });
+    }
+
+    addCategoryTossups(categoryID, numSelectedCategories) {
+        console.log("category added");
+        this.loadTossups(Math.ceil(this.tossups.length / numSelectedCategories), categoryID); 
+    }
+
+    loadCategoryTossups(categoryID, numSelectedCategories) {
+        console.log("loading category " + categoryID);
+        this.loadTossups(Math.ceil(QuestionHolder.TARGETTOSSUPS / numSelectedCategories), categoryID);
     }
 
     // Called in getTossup to remove invalid tossups and add back newly valid tossups

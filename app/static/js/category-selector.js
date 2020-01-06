@@ -6,7 +6,7 @@ class CategorySelector {
     static COLLAPSEPREFIX = "collapse-prefix";
     static ACCORDIANID = "select-categories";
 
-    static addCategoryEvent = new Event("addCategory");
+    static ADDCATEGORYEVENTNAME = "addCategory";
 
     constructor(url, containerID) {
         this.categoriesChanged = true;
@@ -43,6 +43,17 @@ class CategorySelector {
         return this.categoriesChanged;
     }
 
+    // Returns number of selected categories
+    numSelectedCategories() {
+        let total = 0;
+        for (const value of this.selectedCategories.values()) {
+            if (value) {
+                total++;
+            }
+        }
+        return total;
+    }
+
     generateCheckboxes() {
         for (const category of this.categories.values()) {
             let card = document.createElement("div");
@@ -64,13 +75,13 @@ class CategorySelector {
 
             // Event listener for changing categories
             input.addEventListener("click", () => {
-                let key = category.id;
-                let selected = !this.selectedCategories.get(key);
-                this.selectedCategories.set(key, selected);
+                let selected = !this.selectedCategories.get(category.id);
+                this.selectedCategories.set(category.id, selected);
                 this.categoriesChanged = true;
 
                 if (selected) {
-                    document.dispatchEvent(CategorySelector.addCategoryEvent);
+                    let event = new CustomEvent(CategorySelector.ADDCATEGORYEVENTNAME, {"detail": category.id})
+                    document.dispatchEvent(event);
                 }
             });
 

@@ -137,6 +137,8 @@ function answer() {
 
 // Updates grade display and resets button values
 function nextQuestion() {
+    console.log(state.questionHolder);
+
     if (state.userCorrect == null) {
         state.missedNum++;
         missedNum.innerHTML = state.missedNum;
@@ -167,19 +169,31 @@ function nextQuestion() {
     incorrectButton.classList.add("btn-outline-danger");
     state.userCorrect = null;
 
-    if(state.questionHolder.tossups.length <= 10 && !state.loadingTossups) {
-        state.loadingTossups = true;
-        state.questionHolder.loadTossups().then(function(result) {
-            state.loadingTossups = false;
-        });
-    }
-
     // Only pass in selectedCategories if they have changed, otherwise we can use previous values
-    let categoryArg = undefined;
-    if (state.categorySelector.categoriesHaveChanged()) {
-        categoryArg = state.categorySelector.getSelectedCategories();
-    }
-    state.questionHolder.getTossup(categoryArg).then(function(result) {
+    let selectedCategories = state.categorySelector.getSelectedCategories();
+    // Only pass in selected categories if they have changed
+    state.questionHolder.getTossup(state.categorySelector.categoriesHaveChanged() ? selectedCategories : undefined)
+        .then(function(result) {
+        // Load extra tossups from api if running short. Called here so that
+        // valid and invalid tossups are already sorted
+        if(!state.loadingTossups && state.questionHolder.shouldLoadTossups()) {
+            console.log("loading tossups");
+            state.loadingTossups = true;
+
+            let chain = Promise.resolve();
+            let numSelectedCategories = state.categorySelector.numSelectedCategories();
+            for (const entry of selectedCategories) {
+                if (entry[1]) {
+                    console.log("should load category " + entry[0]);
+                    chain.then(() => state.questionHolder.loadCategoryTossups(entry[0], numSelectedCategories));
+                }
+            }
+            chain.then(() => {
+                state.loadingTossups = false;
+                console.log("finished loading");
+            });
+        }
+
         state.currentQuestion = result;
         readQuestion(state.currentQuestion);
     });
@@ -259,17 +273,18 @@ skipButton.addEventListener("click", function() {
     nextQuestion();
 }, false);
 
-document.addEventListener(CategorySelector.addCategoryEvent.type, function(event) {
-    
-});
-
-state.questionHolder.loadTossups(20).then(function(result) {
-    //Calling nextQuestion increments missedNum
-    state.missedNum = -1;
-    nextQuestion();
-});
+// event.detail is ID of added category
+document.addEventListener(CategorySelector.ADDCATEGORYEVENTNAME, 
+    (event) => state.questionHolder.addCategoryTossups(event.detail, state.categorySelector.numSelectedCategories())
+);
 
 document.addEventListener("DOMContentLoaded", function(event) { 
     state.categorySelector = new CategorySelector("http://127.0.0.1:5000/api/categories", "select-categories");
     state.questionHolder.selectedCategories = state.categorySelector.getSelectedCategories();
+
+    state.questionHolder.loadTossups(20).then(function(result) {
+        //Calling nextQuestion increments missedNum
+        state.missedNum = -1;
+        nextQuestion();
+    });
 });

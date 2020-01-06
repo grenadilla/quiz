@@ -172,37 +172,29 @@ function resetDisplay() {
 
 // Updates grade display and resets button values
 function nextQuestion() {
-    console.log(state.questionHolder);
-
     gradePlayer();
     resetDisplay();
 
-    // Only pass in selectedCategories if they have changed, otherwise we can use previous values
-    let categoriesChanged = state.categorySelector.categoriesHaveChanged();
+    // Sort tossups as valid/invalid, then load extra tossups from api if running short
     let selectedCategories = state.categorySelector.getSelectedCategories();
-    // Only pass in selected categories if they have changed
-    state.questionHolder.getTossup(categoriesChanged ? selectedCategories : undefined)
-        .then(function(result) {
-        // Load extra tossups from api if running short. Called here so that
-        // valid and invalid tossups are already sorted
-        if(!state.loadingTossups && state.questionHolder.shouldLoadTossups()) {
-            console.log("loading tossups");
-            state.loadingTossups = true;
+    state.questionHolder.sortTossups(selectedCategories);
+    if(!state.loadingTossups && state.questionHolder.shouldLoadTossups()) {
+        state.loadingTossups = true;
 
-            let chain = Promise.resolve();
-            let numSelectedCategories = state.categorySelector.numSelectedCategories();
-            for (const entry of selectedCategories) {
-                if (entry[1]) {
-                    console.log("should load category " + entry[0]);
-                    chain.then(() => state.questionHolder.loadCategoryTossups(entry[0], numSelectedCategories));
-                }
+        let chain = Promise.resolve();
+        let numSelectedCategories = state.categorySelector.numSelectedCategories();
+        // selectedCategories is map [categoryID, isSelected]
+        for (const entry of selectedCategories) {
+            if (entry[1]) {
+                chain.then(() => state.questionHolder.loadCategoryTossups(entry[0], numSelectedCategories));
             }
-            chain.then(() => {
-                state.loadingTossups = false;
-                console.log("finished loading");
-            });
         }
+        chain.then(() => {
+            state.loadingTossups = false;
+        });
+    }
 
+    state.questionHolder.getTossup(selectedCategories).then(function(result) {
         state.currentQuestion = result;
         readQuestion(state.currentQuestion);
     });

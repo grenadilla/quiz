@@ -71,15 +71,23 @@ class CategorySelector {
             let input = document.createElement("input");
             input.classList.add("form-check-input");
             input.setAttribute("type", "checkbox");
-            input.setAttribute("checked", true);
+            input.checked = true;
 
             // Event listener for changing categories
-            input.addEventListener("click", () => {
-                let selected = !this.selectedCategories.get(category.id);
-                this.selectedCategories.set(category.id, selected);
-                this.categoriesChanged = true;
+            input.addEventListener("click", (event) => {
+                let isSelected = !this.selectedCategories.get(category.id);
+                this.selectedCategories.set(category.id, isSelected);
 
-                if (selected) {
+                // Must have at least one category selected, so prevent unchecking last category
+                if (this.numSelectedCategories() === 0 && !isSelected) {
+                    this.selectedCategories.set(category.id, true);
+                    input.checked = true;
+                    event.preventDefault();
+                } else {
+                    this.categoriesChanged = true;
+                }
+
+                if (isSelected) {
                     let event = new CustomEvent(CategorySelector.ADDCATEGORYEVENTNAME, {"detail": category.id})
                     document.dispatchEvent(event);
                 }

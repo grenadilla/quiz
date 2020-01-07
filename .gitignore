@@ -5,3 +5,4 @@ __pycache__/
 config.py 
 *.flaskenv
 sqlalchemytest.py
+app/static/favicon_io/

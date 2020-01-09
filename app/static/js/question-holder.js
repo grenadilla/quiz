@@ -36,12 +36,20 @@ class QuestionHolder {
         });
     }
 
-    addCategoryTossups(categoryID, numSelectedCategories) {
-        this.loadTossups(Math.ceil(this.tossups.length / numSelectedCategories), categoryID); 
+    loadSelectedCategoryTossups(num, selectedCategories) {
+        let promises = [];
+        for (const entry of selectedCategories) {
+            if (entry[1]) {
+                let promise = this.loadTossups(num, entry[0]);
+                promises.push(promise);
+            }
+        }
+
+        return Promise.all(promises);
     }
 
-    loadCategoryTossups(categoryID, numSelectedCategories) {
-        this.loadTossups(Math.ceil(QuestionHolder.TARGETTOSSUPS / numSelectedCategories), categoryID);
+    addCategoryTossups(categoryID, numSelectedCategories) {
+        this.loadTossups(Math.ceil(this.tossups.length / numSelectedCategories), categoryID); 
     }
 
     // Called in getTossup to remove invalid tossups and add back newly valid tossups
@@ -74,18 +82,13 @@ class QuestionHolder {
         let self = this;
         if (self.tossups.length === 0) {
             // selectedCategories is map [categoryID, isSelected]
-            let chain = Promise.resolve();
-            for (const entry of selectedCategories) {
-                if (entry[1]) {
-                    chain.then(() => self.loadTossups(1, entry[0]));
-                }
-            }
-            chain.then(() => {
-                // Return random element of tossups to randomize possible categories
-                let index = Math.random() * self.tossups.length;
-                resolve(self.tossups.splice(index, 1)[0]);
+            return new Promise(function(resolve, reject) {
+                self.loadSelectedCategoryTossups(1, selectedCategories).then(() => {
+                    // Return random element of tossups to randomize possible categories
+                    let index = Math.random() * self.tossups.length;
+                    resolve(self.tossups.splice(index, 1)[0]);
+                });
             });
-            return chain;
         }
 
         return new Promise(function(resolve, reject) {

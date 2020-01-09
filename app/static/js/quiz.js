@@ -181,15 +181,10 @@ function nextQuestion() {
     if(!state.loadingTossups && state.questionHolder.shouldLoadTossups()) {
         state.loadingTossups = true;
 
-        let chain = Promise.resolve();
         let numSelectedCategories = state.categorySelector.numSelectedCategories();
         // selectedCategories is map [categoryID, isSelected]
-        for (const entry of selectedCategories) {
-            if (entry[1]) {
-                chain.then(() => state.questionHolder.loadCategoryTossups(entry[0], numSelectedCategories));
-            }
-        }
-        chain.then(() => {
+        let perCategory = Math.ceil(QuestionHolder.TARGETTOSSUPS / numSelectedCategories);
+        state.questionHolder.loadSelectedCategoryTossups(perCategory, selectedCategories).then(() => {
             state.loadingTossups = false;
         });
     }

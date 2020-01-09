@@ -36,6 +36,7 @@ class QuestionHolder {
         });
     }
 
+    // Wrapper for loadTossups that loads tossups based on which categories are selected
     loadSelectedCategoryTossups(num, selectedCategories) {
         let promises = [];
         for (const entry of selectedCategories) {
@@ -48,6 +49,7 @@ class QuestionHolder {
         return Promise.all(promises);
     }
 
+    // Loads tossups when a new category is selected
     addCategoryTossups(categoryID, numSelectedCategories) {
         this.loadTossups(Math.ceil(this.tossups.length / numSelectedCategories), categoryID); 
     }
@@ -78,10 +80,9 @@ class QuestionHolder {
 
     // Returns a promise that resolves a single tossup to be read as a question
     getTossup(selectedCategories) {
-        // Load emergency tossups if have no tossups
+        // Load emergency tossups if have no tossups then return a tossup
         let self = this;
         if (self.tossups.length === 0) {
-            // selectedCategories is map [categoryID, isSelected]
             return new Promise(function(resolve, reject) {
                 self.loadSelectedCategoryTossups(1, selectedCategories).then(() => {
                     // Return random element of tossups to randomize possible categories
@@ -91,6 +92,7 @@ class QuestionHolder {
             });
         }
 
+        // Otherwise just return a tossup
         return new Promise(function(resolve, reject) {
             // Return random element of tossups to randomize possible categories
             let index = Math.random() * self.tossups.length;

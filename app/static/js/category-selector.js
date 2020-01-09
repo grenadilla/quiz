@@ -54,6 +54,7 @@ class CategorySelector {
         return total;
     }
 
+    // Generates the checkboxes on the CategorySelector's container
     generateCheckboxes() {
         for (const category of this.categories.values()) {
             let card = document.createElement("div");
